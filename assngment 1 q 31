@@ -1,0 +1,35 @@
+#include <msp430.h>
+
+void main(void)
+{
+    WDTCTL = WDTPW | WDTHOLD;   // Stop watchdog timer
+
+    // Configure LED pins
+    P1DIR |= BIT0;               // Set P1.0 (Red LED) as output
+    P6DIR |= BIT6;               // Set P6.6 (Green LED) as output
+    P1OUT &= ~BIT0;              // Initialize Red LED to off
+    P6OUT &= ~BIT6;              // Initialize Green LED to off
+
+    // Configure Button pins
+    P1DIR &= ~BIT3;              // Set P1.3 (S1 button) as input
+    P1REN |= BIT3;               // Enable pull-up/pull-down resistor on P1.3
+    P1OUT |= BIT3;               // Configure P1.3 as pull-up
+
+    P1DIR &= ~BIT4;              // Set P1.4 (S2 button) as input
+    P1REN |= BIT4;               // Enable pull-up/pull-down resistor on P1.4
+    P1OUT |= BIT4;               // Configure P1.4 as pull-up
+
+    while (1) {
+        // Check if S1 (P1.3) is pressed
+        if (!(P1IN & BIT3)) {    // If S1 is pressed (logic low)
+            P1OUT ^= BIT0;       // Toggle Red LED (P1.0)
+            while (!(P1IN & BIT3)); // Wait for S1 release to avoid bouncing
+        }
+
+        // Check if S2 (P1.4) is pressed
+        if (!(P1IN & BIT4)) {    // If S2 is pressed (logic low)
+            P6OUT ^= BIT6;       // Toggle Green LED (P6.6)
+            while (!(P1IN & BIT4)); // Wait for S2 release to avoid bouncing
+        }
+    }
+}
